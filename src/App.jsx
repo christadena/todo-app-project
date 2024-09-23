@@ -1,9 +1,15 @@
 import { useState } from "react";
 import "./App.css";
+import ToDoItem from "./ToDoItem"; // Import the ToDoItem component
 
 function App() {
   const [inputText, setInputText] = useState("");
   const [items, setItems] = useState([]);
+  const [showAlert, setShowAlert] = useState(false);
+
+  function closeAlert() {
+    setShowAlert(false);
+  }
 
   function handleChange(event) {
     const newValue = event.target.value;
@@ -13,24 +19,19 @@ function App() {
   function addItem() {
     // Restrict adding empty items
     if (inputText.trim() === "") {
-      alert("no task given");
+      setShowAlert(true);
       return;
     }
 
     setItems((prevItems) => {
-      return [...prevItems, { text: inputText, completed: false }];
+      return [...prevItems, { text: inputText }];
     });
     setInputText("");
   }
 
-  function toggleComplete(index) {
+  function deleteItem(index) {
     setItems((prevItems) => {
-      return prevItems.map((item, i) => {
-        if (i === index) {
-          return { ...item, completed: !item.completed }; // Toggle completed state
-        }
-        return item;
-      });
+      return prevItems.filter((_, i) => i !== index); // Remove item at the given index
     });
   }
 
@@ -49,19 +50,26 @@ function App() {
         <div>
           <ul>
             {items.map((todoItem, index) => (
-              <li
+              <ToDoItem
                 key={index}
-                onClick={() => toggleComplete(index)}
-                style={{
-                  textDecoration: todoItem.completed ? "line-through" : "none",
-                  cursor: "pointer",
-                }}
-              >
-                {todoItem.text}
-              </li>
+                todoItem={todoItem}
+                index={index}
+                deleteItem={deleteItem} // Pass deleteItem instead of toggleComplete
+              />
             ))}
           </ul>
         </div>
+
+        {showAlert && (
+          <div>
+            <div>
+              <p>
+                Please enter a to-do item <br></br>before adding!
+              </p>
+              <button onClick={closeAlert}>OK</button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
